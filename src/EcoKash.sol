@@ -5,17 +5,20 @@ pragma solidity ^0.8.13;
 // For building our own token (currency in this case) we will use ERC20 standard
 // https://eips.ethereum.org/EIPS/eip-20 
 interface ERC20 {
-    function transfer(address _to, uint256 _value) external returns (bool);
-    function balanceOf(address _owner) external view returns (uint256);
+    function transfer(address to, uint256 value) external returns (bool);
+    function balanceOf(address account) external view returns (uint256);
     function totalSupply() external view returns (uint256);
-
+    function approve(address spender, uint256 value) external returns (bool);
+    function transferFrom(address from, address to, uint256 value) external returns (bool);
     //for notifying transfers
     event Transfer(address indexed from, address indexed to, uint256 value);
 }
 
 contract EcoKash is ERC20 {
     uint256 private _totalSupply;
+
     mapping (address => uint256) private balances;
+    mapping(address => mapping(address => uint256)) private allowances;
 
     address private _owner;
 
@@ -56,9 +59,50 @@ contract EcoKash is ERC20 {
 
         emit Transfer(address(0), to, amount); // Emit the minting event
     }
+
+
+    function approve(address spender, uint256 value) public returns (bool) {
+        require(spender != address(0), "Cannot approve to zero address");
+        require(value <= balances[msg.sender], "Insufficient balance");
+        allowances[msg.sender][spender] = value;
+        return true;
+    }
+
+    function transferFrom(address from, address to, uint256 value) public returns (bool) {
+        require(balances[from] >= value, "Insufficient balance");
+        require(from != address(0), "Cannot transfer from zero address");
+        require(to != address(0), "Cannot transfer to zero address");
+
+        allowances[from][msg.sender] -= value;
+        balances[from] -= value;
+        balances[to] += value;
+
+        emit Transfer(from, to, value);
+        return true;
+    }
 }
 
 
 
 //Improvements
-// MAX_SUPPLY, decimals, 
+// MAX_SUPPLY for limiing the supply, making it scarce
+// decimals, is used for the precision of the token, how many parts can it be divided into ex: 1 USD = 100 cents, 1 GBP = 100 pence, 1 INR 100 paise.
+// burn function to burn tokens, only owner can burn, for making it scarce
+
+
+//Problem with approve
+
+// When you use approve in ERC20 tokens, you tell the contract how many tokens someone else (a "spender") can use on your behalf. However, if you update the allowance without resetting it to 0 first, bad things can happen.
+
+// Example Scenario
+// You approve Bob to spend 100 tokens for you.
+// Bob spends 50 tokens, so now Bob has 50 tokens left to spend.
+// You decide to let Bob spend 200 tokens, so you call approve(Bob, 200).
+// The Problem
+// While you're updating Bob's allowance:
+
+// Bob can sneak in a transaction to use the remaining 50 tokens before your new allowance of 200 takes effect.
+// Now, Bob has 50 + 200 = 250 tokens to spend, even though you only wanted him to have 200 tokens.
+
+
+
