@@ -42,11 +42,11 @@ contract EcoKash is ERC20 {
         return true;
     }
     //function to check total supply
-    function totalSupply() public view returns (uint256){
+    function totalSupply() external view returns (uint256){
         return _totalSupply;
     }
     //function to check balance
-    function balanceOf(address account) public view returns (uint256){
+    function balanceOf(address account) external view returns (uint256){
         return balances[account];
     }
 
@@ -61,14 +61,14 @@ contract EcoKash is ERC20 {
     }
 
 
-    function approve(address spender, uint256 value) public returns (bool) {
+    function approve(address spender, uint256 value) external returns (bool) {
         require(spender != address(0), "Cannot approve to zero address");
         require(value <= balances[msg.sender], "Insufficient balance");
         allowances[msg.sender][spender] = value;
         return true;
     }
 
-    function transferFrom(address from, address to, uint256 value) public returns (bool) {
+    function transferFrom(address from, address to, uint256 value) external returns (bool) {
         require(balances[from] >= value, "Insufficient balance");
         require(from != address(0), "Cannot transfer from zero address");
         require(to != address(0), "Cannot transfer to zero address");
@@ -84,13 +84,13 @@ contract EcoKash is ERC20 {
 
 
 
-//Improvements
+// Improvements
 // MAX_SUPPLY for limiing the supply, making it scarce
 // decimals, is used for the precision of the token, how many parts can it be divided into ex: 1 USD = 100 cents, 1 GBP = 100 pence, 1 INR 100 paise.
 // burn function to burn tokens, only owner can burn, for making it scarce
 
 
-//Problem with approve
+// Problem with approve
 
 // When you use approve in ERC20 tokens, you tell the contract how many tokens someone else (a "spender") can use on your behalf. However, if you update the allowance without resetting it to 0 first, bad things can happen.
 
@@ -105,4 +105,25 @@ contract EcoKash is ERC20 {
 // Now, Bob has 50 + 200 = 250 tokens to spend, even though you only wanted him to have 200 tokens.
 
 
+// Example (OpenZeppelin Implementation)
+
+// contract MyToken is ERC20, ERC20Permit {
+//     constructor() ERC20("MyToken", "MTK") ERC20Permit("MyToken") {}
+// }
+// Here, ERC20Permit is imported from OpenZeppelin, a popular library of audited smart contract templates.
+
+// The ERC20Permit contract implements the permit function and integrates seamlessly with ERC20.
+
+// ERC20Permit saves Gas?
+// No Separate approve Transaction:
+
+// In the standard process, you first pay gas for approve, then pay gas for the actual operation (e.g., swap or transferFrom).
+// With ERC20Permit, you skip the approve step entirely.
+// One Transaction Instead of Two:
+
+// Instead of:
+// approve (gas-heavy).
+// Token operation (e.g., transferFrom, also gas-heavy).
+// You do only:
+// A single transaction (e.g., permit + transferFrom).
 
