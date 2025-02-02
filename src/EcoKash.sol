@@ -66,7 +66,7 @@ contract EcoKash is ERC20 {
         return allowances[_owner][spender];
     }
 
-    function increaseAllowances(address spender, uint256 addedValue) public returns (bool) {
+    function increaseAllowance(address spender, uint256 addedValue) public returns (bool) {
         require(addedValue >= 0, "Added value should be greater than zero.");
         require(spender != address(0),"Spender address cannot be zero.");
         allowances[msg.sender][spender] += addedValue;
@@ -75,7 +75,7 @@ contract EcoKash is ERC20 {
         return true;
     }
 
-    function decreaseAllowances(address spender, uint256 subtractedValue) public returns (bool) {
+    function decreaseAllowance(address spender, uint256 subtractedValue) public returns (bool) {
         require(subtractedValue >= 0, "value should be greater than zero.");
         require(spender != address(0),"spender address cannot be zero.");
         uint256 currentAllowance = allowances[msg.sender][spender];
@@ -89,6 +89,7 @@ contract EcoKash is ERC20 {
      // Minting function
     function mint(address to, uint256 amount) public onlyOwner {
         require(to != address(0), "Cannot mint to zero address");
+        require(amount <= MAX_SUPPLY - _totalSupply, "Exceeds maximum supply");
         _totalSupply += amount; // Increase total supply
         balances[to] += amount; // Add tokens to the recipient's balance
 
