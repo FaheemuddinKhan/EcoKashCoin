@@ -100,6 +100,8 @@ contract EcoKash is ERC20 {
         require(spender != address(0), "Cannot approve to zero address");
         require(value <= balances[msg.sender], "Insufficient balance");
         allowances[msg.sender][spender] = value;
+
+        emit Approval(msg.sender, spender, value);
         return true;
     }
 
