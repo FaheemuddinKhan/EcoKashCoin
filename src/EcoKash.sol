@@ -2,6 +2,31 @@
 pragma solidity ^0.8.13;
 
 
+
+abstract contract Ownable{
+    address private _owner;
+    event OwnershipTransferred(address indexed oldOwner, address indexed newOwner);
+    constructor(){
+        _owner = msg.sender;
+        emit OwnershipTransferred(address(0),_owner);
+    }
+
+    modifier onlyOwner() {
+        require(owner() == msg.sender,"sender is not authorized");
+        _;
+    }
+
+    function owner() public view virtual returns (address) {return _owner;}
+
+    function transferOwnership(address newOwner) public virtual onlyOwner {
+        require(newOwner != address(0), "Ownable: new owner address is zero address.");
+        address oldOwner = _owner;
+        _owner = newOwner;
+        emit OwnershipTransferred(oldOwner,newOwner);
+    }
+}
+
+
 // For building our own token (currency in this case) we will use ERC20 standard
 // https://eips.ethereum.org/EIPS/eip-20 
 interface ERC20 {
@@ -17,13 +42,13 @@ interface ERC20 {
     event Approval(address indexed owner, address indexed spender, uint256 value);
 }
 
-contract EcoKash is ERC20 {
+contract EcoKash is ERC20, Ownable {
     uint256 private _totalSupply;
 
     mapping (address => uint256) private balances;
     mapping (address => mapping (address => uint256)) private allowances;
 
-    address private owner;
+   
 
     string public name = "EcoKash";
     string public symbol = "EKC";
@@ -33,13 +58,7 @@ contract EcoKash is ERC20 {
     uint256 public constant MAX_SUPPLY = 1_000_000 * 10**18;
 
     constructor(uint initialSupply) {
-        owner = msg.sender;
-        mint(owner, initialSupply);
-    }
-
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Only the owner can call this function");
-        _;
+        mint(owner(), initialSupply);
     }
 
     //function to transer tokens from sender
