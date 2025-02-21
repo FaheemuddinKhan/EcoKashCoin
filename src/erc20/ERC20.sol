@@ -2,6 +2,8 @@
 pragma solidity ^0.8.13;
 import {IERC20} from "../interface/IERC20.sol";
 import {Ownable} from "../ownable/ownable.sol";
+import {InvalidAddress} from "../errors/error.sol";
+
 
 abstract contract ERC20 is IERC20, Ownable {
     uint256 private _totalSupply;
@@ -12,8 +14,6 @@ abstract contract ERC20 is IERC20, Ownable {
     string private _symbol;
     uint8 private _decimals;
 
-    uint256 private constant MAX_SUPPLY = 10_00_000 * 10**18;
-
     error InsufficientAllowance();
     error InsufficientBalance();
     error ExceedsInitialSupplyThreshold();
@@ -22,7 +22,7 @@ abstract contract ERC20 is IERC20, Ownable {
         _name = name;
         _symbol = symbol;
         if (initialSupply <= 1000 *10**18) {
-            _totalSupply = initialSupply;
+            _updateBalances(address(0), msg.sender, initialSupply);
         } else {
             revert ExceedsInitialSupplyThreshold();
         }
@@ -76,9 +76,6 @@ abstract contract ERC20 is IERC20, Ownable {
             revert InsufficientAllowance();
         }
         _approve(owner, spender, currentAllowance - value, false);
-        if ( _allowances[owner][spender] <= value) {
-            revert InsufficientAllowance();
-        }
         return true;
     }
 
@@ -94,9 +91,9 @@ abstract contract ERC20 is IERC20, Ownable {
         }
 
         if (to == address(0)){
-           _totalSupply -= value;
+            _totalSupply -= value;
         }else {
-             _balances[to] += value;
+            _balances[to] += value;
         }
         emit Transfer(from, to, value);
     }

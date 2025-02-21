@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
-import {Error} from "../errors/error.sol";
+import "../errors/error.sol";
 
-abstract contract Ownable is Error {
+abstract contract Ownable {
     address private _owner;
 
     event OwnereshipTransferred(address indexed from, address indexed to);
@@ -14,7 +14,7 @@ abstract contract Ownable is Error {
         _owner = msg.sender;
     }
 
-    function owner() external view  returns (address){
+    function owner() external view returns (address){
         return _owner;
     }
 
@@ -25,7 +25,7 @@ abstract contract Ownable is Error {
     }
 
     function transferOwnership(address newOwner) external onlyOwner {
-        if (newOwner != address(0)) {
+        if (newOwner == address(0)) {
             revert InvalidAddress();
         }
         address previousOwner = _owner;
