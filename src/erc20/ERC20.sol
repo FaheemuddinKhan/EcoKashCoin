@@ -12,7 +12,7 @@ abstract contract ERC20 is IERC20, Ownable {
 
     string private _name;
     string private _symbol;
-    uint8 private _decimals;
+    uint8 private _decimals = 18;
 
     error InsufficientAllowance();
     error InsufficientBalance();
