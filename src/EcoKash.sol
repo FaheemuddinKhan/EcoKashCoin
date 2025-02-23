@@ -7,3 +7,8 @@ contract EcoKash is ERC20 {
     constructor(uint initialSupply) ERC20("Eco Kash","EKC", initialSupply) {
     }
 }
+
+contract MemeKash is ERC20 {
+    constructor(uint initialSupply) ERC20("Meme Kash","MKC", initialSupply) {
+    }
+}

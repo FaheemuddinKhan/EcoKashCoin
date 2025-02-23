@@ -110,4 +110,8 @@ abstract contract ERC20 is IERC20, Ownable {
             emit Approval(owner, spender, value);
         }
     }
+
+    function decimals() public view returns (uint256) {
+        return _decimals;
+    }
 }
