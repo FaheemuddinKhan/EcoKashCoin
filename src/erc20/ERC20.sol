@@ -12,7 +12,7 @@ abstract contract ERC20 is IERC20, Ownable {
 
     string private _name;
     string private _symbol;
-    uint8 private _decimals = 18;
+    uint8 private _decimals = 8;
 
     error InsufficientAllowance();
     error InsufficientBalance();
@@ -21,7 +21,7 @@ abstract contract ERC20 is IERC20, Ownable {
     constructor(string memory name, string memory symbol, uint256 initialSupply ){
         _name = name;
         _symbol = symbol;
-        if (initialSupply <= 1000 *10**18) {
+        if (initialSupply <= 1000*10**8) {
             _updateBalances(address(0), msg.sender, initialSupply);
         } else {
             revert ExceedsInitialSupplyThreshold();
